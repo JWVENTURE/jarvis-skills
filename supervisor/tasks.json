@@ -1,0 +1,42 @@
+[
+  {
+    "id": "task-profile",
+    "name": "Review Member Profile Screen",
+    "execution": "parallel",
+    "agent_type": "Explore",
+    "prompt": "Analyze member profile screen components. Working dir: C:\\uniplay-development\\src\\magicpatterns. Return ONLY: file paths (max 3), 3 bullet findings, 1 fix priority. Do NOT dump code.",
+    "depends_on": []
+  },
+  {
+    "id": "task-wallet",
+    "name": "Review Wallet/Credits System",
+    "execution": "parallel",
+    "agent_type": "Explore",
+    "prompt": "Analyze wallet/credits display and transactions. Working dir: C:\\uniplay-development\\src\\magicpatterns. Return ONLY: file paths (max 3), 3 bullet findings, 1 fix priority. Do NOT dump code.",
+    "depends_on": []
+  },
+  {
+    "id": "task-refund",
+    "name": "Review Refund/Credit Cancellation",
+    "execution": "parallel",
+    "agent_type": "Explore",
+    "prompt": "Analyze cancellation flow and credit refunds. Working dir: C:\\uniplay-development. Return ONLY: file paths (max 3), 3 bullet findings, 1 fix priority. Do NOT dump code.",
+    "depends_on": []
+  },
+  {
+    "id": "task-admin",
+    "name": "Review Admin Settings for Credits/Wallet",
+    "execution": "parallel",
+    "agent_type": "Explore",
+    "prompt": "Analyze admin panel settings for credits/wallet. Working dir: C:\\uniplay-development\\src\\magicpatterns\\src\\components\\admin. Return ONLY: file paths (max 3), 3 bullet findings, 1 fix priority. Do NOT dump code.",
+    "depends_on": []
+  },
+  {
+    "id": "task-implement",
+    "name": "Implement Priority Fixes",
+    "execution": "sequential",
+    "agent_type": "general-purpose",
+    "prompt": "Using findings from all review tasks, implement the priority fixes. Create/update components as needed. Test locally with npm run lint and npm run build.",
+    "depends_on": ["task-profile", "task-wallet", "task-refund", "task-admin"]
+  }
+]
