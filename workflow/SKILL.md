@@ -1,0 +1,383 @@
+---
+name: workflow
+description: JARVS workflow protocols - image analysis, planning, multi-agent execution, testing before deployment. Keywords: workflow, plan, execute, test, deploy, preview, smoke
+user-invocable: true
+---
+
+# JARVIS Workflow Protocols
+
+**Core Principles:** Analyze first, plan thoroughly, execute intelligently, test before deploy.
+
+---
+
+## 🔍 RULE 1: Always Check Images Using Built-in Z.AI
+
+**MANDATORY:** When user attaches an image, ALWAYS analyze it FIRST using vision tools.
+
+### Built-in Vision Tool (z.ai GLM Vision)
+
+```
+Tool: mcp__glm-zai-vision__analyze_image
+Use: Image URL or local file
+Purpose: Analyze screenshots, UI, code screenshots, errors
+```
+
+### Image Verification Protocol
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    WHEN USER SENDS IMAGE                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. STOP everything                                       │
+│     ↓                                                       │
+│  2. Use mcp__glm-zai-vision__analyze_image tool            │
+│     ↓                                                       │
+│  3. Quote what you see in the image                       │
+│     ↓                                                       │
+│  4. Explain what it means                                  │
+│     ↓                                                       │
+│  5. ONLY THEN proceed with any action                      │
+│                                                             │
+│  ❌ DON'T: Assume, guess, or skip analysis                 │
+│  ✅ DO: Always analyze with vision tool first              │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Prompt for Image Analysis
+
+```
+"Describe in detail the layout structure, color style, main components,
+and interactive elements of the website in this image to facilitate
+subsequent code generation by the model. [Add your specific questions]"
+```
+
+---
+
+## 📋 RULE 2: Always Analyze and Plan First
+
+**Before ANY fix or enhancement:** Analyze → Plan → Execute
+
+### Planning Workflow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                 ANALYZE → PLAN → EXECUTE                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. ANALYZE                                                │
+│     • Read the code/file                                    │
+│     • Understand the problem                                │
+│     • Identify dependencies                                 │
+│     • Check related files                                   │
+│     ↓                                                       │
+│  2. PLAN                                                   │
+│     • Create step-by-step plan                              │
+│     • Identify independent tasks                           │
+│     • Identify dependent tasks                             │
+│     • Estimate complexity                                   │
+│     ↓                                                       │
+│  3. GET APPROVAL (if complex)                              │
+│     • Show plan to user                                    │
+│     • Explain approach                                     │
+│     • Confirm before executing                             │
+│     ↓                                                       │
+│  4. EXECUTE                                                │
+│     • Use multi-agent system                               │
+│     • Execute based on dependencies                        │
+│     • Monitor progress                                     │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### When to Plan
+
+| Situation | Need Planning? |
+|-----------|---------------|
+| Simple bug fix (1-2 lines) | ⚠️ Quick plan OK |
+| New feature | ✅ Full plan required |
+| Refactoring | ✅ Full plan required |
+| Multiple files | ✅ Full plan required |
+| UI changes | ✅ Full plan required |
+| Database changes | ✅ Full plan required |
+| Unknown scope | ✅ Full plan required |
+
+### Plan Template
+
+```
+## Analysis
+**Issue:** [Description of problem]
+**Root Cause:** [What's causing it]
+**Affected Files:** [List files involved]
+
+## Plan
+**Phase 1:** [Task 1]
+- [ ] Step 1.1
+- [ ] Step 1.2
+
+**Phase 2:** [Task 2] (depends on Phase 1)
+- [ ] Step 2.1
+- [ ] Step 2.2
+
+**Dependencies:**
+- Task 2 depends on Task 1
+- Task 3 can run in parallel with Task 1
+
+**Estimated Effort:** [Time/Complexity]
+```
+
+---
+
+## 🤖 RULE 3: Use Multi-Agent for Execution
+
+**After planning:** Use multi-agent system to execute tasks intelligently.
+
+### Multi-Agent Strategy
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              MULTI-AGENT EXECUTION STRATEGY                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  INDEPENDENT TASKS → execute_parallel                       │
+│    ↓          ↓          ↓                                  │
+│  Task A      Task B     Task C     (run simultaneously)      │
+│                                                             │
+│  DEPENDENT TASKS → execute_sequential                       │
+│    → Task A (must complete first)                           │
+│    → Task B (depends on Task A)                             │
+│    → Task C (depends on Task B)                             │
+│                                                             │
+│  MIXED → Use agent to decide execution mode                 │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Multi-Agent Commands
+
+```bash
+# Parallel execution (independent tasks)
+Agent: execute_parallel
+- Task A
+- Task B
+- Task C
+
+# Sequential execution (dependent tasks)
+Agent: execute_sequential
+- Step 1
+- Step 2
+- Step 3
+
+# Auto execution (agent decides)
+Agent: auto_execute
+- Analyze dependencies
+- Execute optimal strategy
+```
+
+### Task Classification
+
+| Type | Execution | Example |
+|------|-----------|---------|
+| **Independent** | Parallel | Fix unrelated bugs in different files |
+| **Dependent** | Sequential | Build → Test → Deploy |
+| **Mixed** | Auto | Complex feature with mixed dependencies |
+
+---
+
+## 🧪 RULE 4: Test Before Deploy Preview
+
+**MANDATORY:** Before ANY preview deployment, test first and ensure end-to-end workflow works.
+
+### Pre-Deploy Testing Checklist
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│               BEFORE DEPLOYING PREVIEW                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. CODE QUALITY                                           │
+│     [ ] Run npm run lint (MUST pass)                        │
+│     [ ] Run npm run build (MUST succeed)                    │
+│     [ ] Check for TypeScript errors                         │
+│                                                             │
+│  2. LOCAL TESTING                                           │
+│     [ ] Test the feature locally                            │
+│     [ ] Verify UI renders correctly                         │
+│     [ ] Check all interactions work                         │
+│     [ ] Test edge cases                                     │
+│                                                             │
+│  3. WORKFLOW TESTING                                        │
+│     [ ] Test complete user flow                            │
+│     [ ] Verify data flow end-to-end                         │
+│     [ ] Check database operations                           │
+│     [ ] Verify auth/access works                            │
+│     [ ] Test error handling                                 │
+│                                                             │
+│  4. SMOKE TEST CHECKLIST                                    │
+│     [ ] Page loads without crashes                         │
+│     [ ] Primary action works                                │
+│     [ ] No console errors                                   │
+│     [ ] Data displays correctly                             │
+│                                                             │
+│  ✅ ONLY THEN deploy preview                                 │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### What "Smoke Test" Means
+
+**Smoke test** = Quick verification that the core functionality works, NOT full testing.
+
+**User does smoke test:**
+- ✅ Open preview URL
+- ✅ Check main feature works
+- ✅ No obvious crashes/errors
+- ✅ Looks correct visually
+
+**AI does BEFORE smoke test:**
+- ✅ Run linting
+- ✅ Run build
+- ✅ Test locally
+- ✅ Verify workflow
+- ✅ Check for obvious bugs
+
+---
+
+## 🚀 RULE 5: Preview Deployment is for Smoke Test Only
+
+**Preview deployment purpose:** User verification, NOT AI saying "it's done".
+
+### Deployment Mindset
+
+| Phase | Who Does What | Purpose |
+|-------|---------------|---------|
+| **Pre-deploy** | AI: Test everything | Ensure it works before user sees it |
+| **Deploy** | AI: Push to trigger preview | Make available for user |
+| **Smoke test** | User: Quick verification | User checks it works |
+| **Fix if needed** | AI: Address smoke test issues | Fix any problems found |
+| **Ship** | User: "ship it" or approval | Final sign-off |
+
+### What to Say When Deploying
+
+❌ **WRONG:**
+```
+"Deployed to preview! Everything should be working."
+```
+
+✅ **RIGHT:**
+```
+"Deployed to preview for smoke testing.
+
+Preview URL: https://xxx.pages.dev
+
+Please test:
+- [ ] Main feature works
+- [ ] UI displays correctly
+- [ ] No console errors
+
+Let me know if you find any issues."
+```
+
+---
+
+## 📊 Complete Workflow Summary
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    COMPLETE JARVIS WORKFLOW                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  1. IMAGE RECEIVED                                             │
+│     → Use z.ai vision tool to analyze                           │
+│     → Quote what you see                                       │
+│     → Explain meaning before proceeding                         │
+│                                                                  │
+│  2. TASK ASSIGNED                                               │
+│     → Analyze the codebase                                      │
+│     → Read related files                                       │
+│     → Identify root cause                                      │
+│     → Check dependencies                                       │
+│                                                                  │
+│  3. CREATE PLAN                                                 │
+│     → Break down into steps                                     │
+│     → Identify independent vs dependent tasks                  │
+│     → Estimate complexity                                       │
+│     → Get user approval if complex                              │
+│                                                                  │
+│  4. EXECUTE PLAN                                               │
+│     → Use multi-agent for parallel/sequential                   │
+│     → Monitor progress                                         │
+│     → Verify each step                                         │
+│                                                                  │
+│  5. PRE-DEPLOY TEST                                            │
+│     → Run linting (npm run lint)                               │
+│     → Run build (npm run build)                                │
+│     → Test locally                                              │
+│     → Verify end-to-end workflow                                │
+│                                                                  │
+│  6. DEPLOY PREVIEW                                             │
+│     → Push to trigger Cloudflare preview                        │
+│     → Provide preview URL                                      │
+│     → Request smoke test from user                             │
+│                                                                  │
+│  7. SMOKE TEST RESULTS                                         │
+│     → User tests and reports back                              │
+│     → Fix any issues found                                     │
+│     → Repeat until user approves                               │
+│                                                                  │
+│  8. SHIP                                                        │
+│     → User says "ship it" or approves                           │
+│     → Merge to main/master                                      │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚨 Common Mistakes to Avoid
+
+| Mistake | Why It's Wrong | Correct Approach |
+|---------|---------------|------------------|
+| Skip image analysis | Might misunderstand the issue | Always use z.ai vision first |
+| Fix without planning | Might miss dependencies | Analyze → Plan → Execute |
+| Execute everything sequentially | Wastes time on independent tasks | Use multi-agent parallel when possible |
+| Deploy without testing | User finds bugs immediately | Test thoroughly before deploy |
+| Say "it's deployed" without context | User doesn't know what to test | Provide URL + smoke test checklist |
+| Assume it works | Haven't actually verified | Test locally first |
+
+---
+
+## ✅ Quick Reference Card
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    JARVIS WORKFLOW RULES                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. 🖼️  IMAGE → Use z.ai vision tool FIRST               │
+│  2. 📋 PLAN → Analyze and plan before fixing              │
+│  3. 🤖 AGENTS → Multi-agent parallel/sequential execute   │
+│  4. 🧪 TEST → Test thoroughly BEFORE deploying preview     │
+│  5. 🚀 DEPLOY → Preview is for USER smoke test             │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Commands Reference
+
+| Command | Purpose |
+|---------|---------|
+| `mcp__glm-zai-vision__analyze_image` | Analyze images/screenshots |
+| `/plan` or `/analyze` | Create execution plan |
+| `Agent: execute_parallel` | Run independent tasks together |
+| `Agent: execute_sequential` | Run dependent tasks in order |
+| `Agent: auto_execute` | Agent decides execution strategy |
+| `npm run lint` | Check code quality |
+| `npm run build` | Verify build works |
+
+---
+
+**Every session follows these rules. Future Claude sessions will automatically know them.**
