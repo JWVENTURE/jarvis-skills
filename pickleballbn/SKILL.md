@@ -172,6 +172,20 @@ All glassmorphism must follow the same pattern:
 
 ---
 
+## 📋 WORKING PROTOCOLS (NON-NEGOTIABLE)
+
+### ALWAYS Verify Before Assuming
+- ❌ "I assume this column exists"
+- ❌ "This should work based on..."
+- ❌ "Probably" or "should be" without checking
+- ✅ READ the actual schema/file FIRST
+- ✅ CHECK database columns before querying
+- ✅ VERIFY with user when unclear
+
+**User feedback:** "never assume, i dont like that.. when working with me always verify first"
+
+---
+
 ## 🏢 JW VENTURES BRANDING (Contracts & Invoices)
 
 **⚠️ IMPORTANT:** JW Ventures has its own brand colors - NOT PickleballBN colors!
@@ -347,6 +361,78 @@ Feature Branch (claude/issue-*)  →  main (staging)  →  master (production)
 
 ---
 
+## 🗄️ DATABASE SAFETY (CRITICAL - LEARNED THE HARD WAY)
+
+**User experienced "chaos" from accidental database reset - ALWAYS BACKUP FIRST!**
+
+### Before ANY Database Modification:
+1. **Create backup** to `backups/` directory
+2. **Use Supabase MCP plugin** for migrations (never write raw SQL directly)
+3. **Test in DEV first**, never touch PROD directly
+
+### Backup Location
+```
+C:\uniplay-development\backups\
+```
+
+### Backup Format (JSON)
+```json
+{
+  "backup_date": "YYYY-MM-DD",
+  "backup_time": "Description of what backup protects",
+  "project_id": "luhetbxmnfxylgkrvagh",
+  "project_name": "pickleballbn-dev",
+  "summary": {
+    "venues": N,
+    "courts": N,
+    "bookings": N
+  },
+  "restore_instructions": {
+    "critical_tables": ["venues", "courts", "bookings", "user_profiles"]
+  }
+}
+```
+
+### Commands (Use Supabase MCP)
+| Action | Tool |
+|--------|------|
+| Apply migration | `mcp__supabase__apply_migration` |
+| Run SQL | `mcp__supabase__execute_sql` |
+| List tables | `mcp__supabase__list_tables` |
+| Check migrations | `mcp__supabase__list_migrations` |
+
+---
+
+## 🤖 MULTI-AGENT WORKFLOW (User Expectation)
+
+**User expects systematic, plan-driven execution with parallel agent coordination.**
+
+### Workflow Pattern
+1. **Create tasks** via `TaskCreate` with clear subjects and descriptions
+2. **Track progress** via `TaskUpdate` (in_progress → completed)
+3. **Parallel execution** via `Agent` tool for independent workstreams
+4. **Supervised coordination** - Always follow written plans systematically
+
+### When to Use Agents
+| Scenario | Approach |
+|----------|---------|
+| Independent file changes | Parallel agents (one per file/feature) |
+| Sequential dependencies | Single agent, then next |
+| Large refactors | Break into tasks, coordinate agents |
+
+### Example Pattern
+```
+1. TaskCreate for each component
+2. Agent 1: Component A
+3. Agent 2: Component B (parallel if independent)
+4. Review and integrate results
+5. TaskUpdate all tasks to completed
+```
+
+**Never skip planning and jump straight to execution** - the user expects structured work.
+
+---
+
 ## 📝 SESSION WRAP PROTOCOL
 
 When ending session:
@@ -394,7 +480,7 @@ This file is **auto-updated** by the reflect skill when:
 - You express a preference ("I prefer Y")
 - A pattern is identified across sessions
 
-**Last Learning:** [Updated 2026-03-26 - CyberSource Secure Acceptance: Failure URL NOT needed]
+**Last Learning:** [Updated 2026-03-27 - Working Protocols: ALWAYS Verify Before Assuming]
 
 **Git History:** View commit history to see how JARVIS learned over time.
 
@@ -406,3 +492,5 @@ _Added by reflect skill for future review_
 
 - [ ] 2026-03-26: Vision tool workaround - use Read tool first (uploads to CDN), then built-in 4_5v analyze_image
 - [ ] 2026-03-26: CRON_SECRET not needed for Phase 1 MVP - can add automated cleanup later
+- [ ] 2026-03-26: Database backup before ANY modification (learned from "chaos" of accidental reset)
+- [ ] 2026-03-26: Multi-agent workflow expectation - use TaskCreate/TaskUpdate + Agent tools
