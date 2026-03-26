@@ -403,9 +403,36 @@ C:\uniplay-development\backups\
 
 ---
 
+## 🔧 DATABASE KNOWN ISSUES (In Progress)
+
+### Scheduled Breaks Feature (2026-03-27)
+| Item | Status | Details |
+|------|--------|---------|
+| `venues.scheduled_breaks` column | ✅ EXISTS | Verified via information_schema (jsonb type) |
+| `get_available_slots_for_venue` uses breaks | ❌ BUG | Does NOT read scheduled_breaks column |
+| Frontend (VenueOperatingHours.tsx) saves breaks | ❓ UNKNOWN | Needs verification |
+| Required: Filter slots during scheduled breaks | 🟡 TODO | Update RPC + verify frontend |
+| Required: Side panel "Venue Management" menu | 🟡 TODO | Add "Venue Management" → "Venue Settings" |
+
+**Related Files:**
+- `supabase/functions/get_available_slots_for_venue` - RPC to update
+- `src/magicpatterns/src/hooks/useVenueLogo.ts` - isVenueOpen() function (has break logic)
+- `src/magicpatterns/src/components/admin/VenuesOperatingHours.tsx` - Admin UI
+
+---
+
 ## 🤖 MULTI-AGENT WORKFLOW (User Expectation)
 
 **User expects systematic, plan-driven execution with parallel agent coordination.**
+
+### When User Requests Feature Work
+**User expectation:** "plan everything with super power skill including implementation and e2e test, use multi agents in parallels , independent or depedent supervised by you base on our plan"
+
+**Required workflow for new features:**
+1. **Brainstorming skill** - Design the feature first (ask clarifying questions, propose approaches)
+2. **Create implementation plan** - With E2E tests included
+3. **Multi-agent parallel execution** - Independent/dependent as planned
+4. **Supervised coordination** - Follow the plan systematically
 
 ### Workflow Pattern
 1. **Create tasks** via `TaskCreate` with clear subjects and descriptions
