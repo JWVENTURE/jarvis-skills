@@ -357,6 +357,36 @@ When ending session:
 
 ---
 
+## 💳 CYBERSOURCE SECURE ACCEPTANCE (Phase 1)
+
+### Test Credentials (Sandbox)
+| Property | Value |
+|----------|-------|
+| Environment | TEST (`ebc2test.cybersource.com`) |
+| Merchant ID | `950051292_test001` |
+| Profile Name | `baiduri` |
+| Profile ID | `6707F8D1-76C2-4BC1-87FF-7130B42E83DC` |
+| Access Key | `026d06d4998b3b76bfc64120264ca6a9` |
+| Secret Key | `fbdfd1e1e5c44ac1a5a62d315afd65702f18e4bd3c58461a9baabb49463b334b1dfc6f3604da44a792458033f342138d6bc366a29e6b404f899a5acc924cc5d85e38715523c1479cb51889f8b5ad326c0bd3333ca39948d0b534b64782f6e8d3c2c4d2ccb9084128b7aa8422a8e2ad8979db2646f6424eefa23022b4f5db0922` |
+
+### Return URLs (DEV)
+| Event | URL | Notes |
+|-------|-----|-------|
+| Success | `https://pickleballbn-dev.pages.dev/payment-success` | ✅ Configured |
+| Failure | *(Not needed)* | User stays on CyberSource hosted page for errors |
+| Cancel | `https://pickleballbn-dev.pages.dev/cart` | ✅ Configured |
+
+### ⚠️ CRITICAL: Failure URL NOT Required
+**User stays on CyberSource hosted page when payment fails** - error messages are displayed there. User can retry or cancel from hosted page. Only success and cancel redirects are needed for Phase 1.
+
+### Environment Variables (Supabase Edge Functions)
+```bash
+CYBERSOURCE_ACCESS_KEY=026d06d4998b3b76bfc64120264ca6a9
+CYBERSOURCE_SECRET_KEY=fbdfd1e1e5c44ac1a5a62d315afd65702f18e4bd...
+```
+
+---
+
 ## 🔄 AUTO-LEARNING (via /reflect)
 
 This file is **auto-updated** by the reflect skill when:
@@ -364,7 +394,7 @@ This file is **auto-updated** by the reflect skill when:
 - You express a preference ("I prefer Y")
 - A pattern is identified across sessions
 
-**Last Learning:** [Updated 2025-03-07 - WCAG, No Color Vibrations, Glassmorphism, Full Palette, JW Ventures Branding]
+**Last Learning:** [Updated 2026-03-26 - CyberSource Secure Acceptance: Failure URL NOT needed]
 
 **Git History:** View commit history to see how JARVIS learned over time.
 
@@ -374,4 +404,5 @@ This file is **auto-updated** by the reflect skill when:
 
 _Added by reflect skill for future review_
 
-- [ ] Initial skill setup - no pending reviews yet
+- [ ] 2026-03-26: Vision tool workaround - use Read tool first (uploads to CDN), then built-in 4_5v analyze_image
+- [ ] 2026-03-26: CRON_SECRET not needed for Phase 1 MVP - can add automated cleanup later
