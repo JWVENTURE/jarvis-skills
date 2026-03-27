@@ -307,6 +307,26 @@ Feature Branch (claude/issue-*)  →  main (staging)  →  master (production)
 
 ---
 
+## 🧠 SHARED MEMORY ARCHITECTURE (Git)
+
+**Source of truth:** `.memory-bank/pickleballbn/` (committed to git)
+
+### Files and Roles
+| File | What it Stores | How to Use |
+|------|----------------|------------|
+| `activeContext.md` | Current session state | **Read at session start**, update during work, refresh at wrap |
+| `systemPatterns.md` | Technical patterns | Add reusable implementation patterns and conventions |
+| `progress.md` | Completed work timeline | Append notable completed items (features, migrations, fixes) |
+| `techStack.md` | Tech decisions + constraints | Record locked choices, versions, and “never use” items |
+| `decisionLog.md` | Key decisions + rationale | Log decisions with *why* (trade-offs, constraints) |
+
+### How each IDE uses it
+- **Claude Code**: reads `activeContext.md` at session start (standard protocol)
+- **Cursor**: same files, but you must explicitly prompt “read `activeContext.md` first”
+- **Trae**: same as Cursor (explicit prompt needed)
+
+**Rule:** If context feels “missing”, re-open `activeContext.md` before doing work.
+
 ## 🗄️ DATABASE ENVIRONMENTS
 
 | Environment | Project ID | Purpose |
