@@ -536,6 +536,54 @@ CYBERSOURCE_SECRET_KEY=fbdfd1e1e5c44ac1a5a62d315afd65702f18e4bd...
 
 ---
 
+## 🎟️ LOYALTY PROGRAM ARCHITECTURE
+
+### System Components
+| Component | Table | Purpose |
+|-----------|-------|---------|
+| Points Balance | `loyalty_points` | User balances, tier status, booking count |
+| Transaction History | `loyalty_transactions` | Audit trail of all point activity |
+| Award Function | `award_loyalty_points()` | Core function to add points |
+| Triggers | `award_points_on_booking()` | Fires on booking confirmed/completed |
+| Settings | `app_settings.loyalty_settings` | Enable/disable, points per booking |
+
+### Function Behavior
+```sql
+-- Points awarded when booking status = 'confirmed'
+INSERT INTO bookings (..., status = 'confirmed', ...)
+  → Trigger: award_points_on_booking()
+  → Function: award_loyalty_points()
+  → Result: +10 points, +1 booking_count
+```
+
+### Known Gotchas
+| Issue | Detail |
+|-------|--------|
+| **Guest bookings** | `user_id = NULL` → No points (by design) |
+| **Transaction logging** | Fixed 2026-03-29 - was missing, now creates audit trail |
+| **Valid transaction_type** | 'earn', 'redeem', 'expire', 'admin_adjust', 'bonus' (NOT 'earned'!) |
+| **Tier progression** | Bronze → Silver (10) → Gold (25) → Platinum (50) bookings |
+
+### Settings (app_settings)
+```json
+{
+  "loyalty_settings": {
+    "enabled": true,
+    "pointsPerBooking": 10,
+    "redemptionRate": 100
+  }
+}
+```
+
+### Debugging Loyalty Issues
+1. Check triggers exist: `SELECT * FROM information_schema.triggers WHERE trigger_name LIKE '%loyalty%'`
+2. Check settings: `SELECT * FROM app_settings WHERE setting_key = 'loyalty_settings'`
+3. Verify function: `SELECT pg_get_functiondef(oid) FROM pg_proc WHERE proname = 'award_loyalty_points'`
+4. Test booking: Create test booking with `user_id` (not guest) and `status = 'confirmed'`
+5. Check records: `SELECT * FROM loyalty_points WHERE user_id = '<user_id>'`
+
+---
+
 ## 🔄 AUTO-LEARNING (via /reflect)
 
 This file is **auto-updated** by the reflect skill when:
@@ -543,7 +591,7 @@ This file is **auto-updated** by the reflect skill when:
 - You express a preference ("I prefer Y")
 - A pattern is identified across sessions
 
-**Last Learning:** [Updated 2026-03-29 - Smoke Testing: Use Firecrawl when user requests "fireclaw"]
+**Last Learning:** [Updated 2026-03-29 - Task #139: Loyalty transaction logging bug fixed + systematic debugging patterns]
 
 **Git History:** View commit history to see how JARVIS learned over time.
 
