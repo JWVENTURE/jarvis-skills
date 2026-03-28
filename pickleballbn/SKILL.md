@@ -400,6 +400,58 @@ Feature Branch (claude/issue-*)  →  main (staging)  →  master (production)
 2. **Use Supabase MCP plugin** for migrations (never write raw SQL directly)
 3. **Test in DEV first**, never touch PROD directly
 
+### Migration Verification Pattern (Task #166 Lesson)
+**Problem:** Migration `20260315_fix_slots_player_counting.sql` was created but NEVER applied to DEV or PROD
+
+**Rule:** Always verify migration was actually applied
+```
+# Check if migration exists in applied migrations
+supabase migrations list --project-ref {PROJECT_ID}
+
+# Compare with local migration files
+ls supabase/migrations/*.sql
+```
+
+**Detection:** Check `list_migrations` output - if migration file exists locally but not in list, it wasn't applied!
+
+### DEV/PROD Divergence Pattern (Task #166)
+**Problem:** Functions had different signatures on DEV vs PROD
+- DEV: `get_available_slots_for_venue(UUID, DATE, BOOLEAN)` - had player counting
+- PROD: `get_available_slots_for_venue(UUID DEFAULT NULL, DATE, BOOLEAN)` - had scheduled breaks but hardcoded `current_players = 0`
+
+**Solution:** Dynamic column detection pattern
+```sql
+-- Check if column exists before querying
+SELECT EXISTS(
+  SELECT 1 FROM information_schema.columns
+  WHERE table_name = 'venues' AND column_name = 'allow_bookings_when_closed'
+) INTO v_has_column;
+
+-- Use dynamic SQL based on result
+IF v_has_column THEN
+  EXECUTE format('SELECT column FROM venues WHERE id = $1') USING p_id INTO v_row;
+ELSE
+  EXECUTE format('SELECT column, DEFAULT FROM venues WHERE id = $1') USING p_id INTO v_row;
+END IF;
+```
+
+### DROP FUNCTION Syntax (Task #166 Lesson)
+**Problem:** `DROP FUNCTION IF EXISTS get_available_slots_for_venue(UUID DEFAULT NULL::UUID...)` → syntax error
+**Fix:** PostgreSQL doesn't allow DEFAULT values in DROP FUNCTION signature
+
+**Correct:**
+```sql
+DROP FUNCTION IF EXISTS get_available_slots_for_venue CASCADE;
+```
+
+### Always Test DEV → PROD
+| Step | Environment | Action |
+|------|-------------|--------|
+| 1 | DEV | Apply migration first |
+| 2 | DEV | Test with actual data (not schema check) |
+| 3 | DEV | Verify output (e.g., `current_players: 1, available_spots: 3`) |
+| 4 | PROD | Only after DEV verified |
+
 ### Backup Location
 ```
 C:\uniplay-development\backups\
@@ -614,3 +666,8 @@ _Added by reflect skill for future review_
 - [ ] 2026-03-26: CRON_SECRET not needed for Phase 1 MVP - can add automated cleanup later
 - [ ] 2026-03-26: Database backup before ANY modification (learned from "chaos" of accidental reset)
 - [ ] 2026-03-26: Multi-agent workflow expectation - use TaskCreate/TaskUpdate + Agent tools
+- [x] 2026-03-29: **VERIFIED** - Migration patterns work! Task #166 completed successfully using:
+  - Migration verification (checked list_migrations, found old migration wasn't applied)
+  - DEV → PROD testing order (tested on DEV first, verified output, then applied to PROD)
+  - DROP FUNCTION CASCADE syntax (fixed DEFAULT parameter error)
+  - Dynamic column detection (handled schema drift between DEV/PROD)
