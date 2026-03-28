@@ -178,11 +178,20 @@ All glassmorphism must follow the same pattern:
 - ❌ "I assume this column exists"
 - ❌ "This should work based on..."
 - ❌ "Probably" or "should be" without checking
+- ❌ "Task is blocked - needs business decision" (without checking code)
 - ✅ READ the actual schema/file FIRST
+- ✅ CHECK `supabase/migrations/*.sql` before declaring blockers
 - ✅ CHECK database columns before querying
 - ✅ VERIFY with user when unclear
 
 **User feedback:** "never assume, i dont like that.. when working with me always verify first"
+**User correction (2026-03-29):** "have you check existing system logic? i think thi is resolve" - Task #235 example: claimed blocked, but `purchase_credits()` RPC already supported both credit types
+
+### Investigation Order
+1. **Check migrations first** - `supabase/migrations/*.sql` contains ACTUAL implementation
+2. Check RPC functions - they show what's really possible
+3. Documentation describes intent, code shows reality
+4. Only then declare something as "blocked" or "needs decision"
 
 ---
 
