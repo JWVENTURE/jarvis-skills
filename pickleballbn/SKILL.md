@@ -378,6 +378,7 @@ Feature Branch (claude/issue-*)  →  main (staging)  →  master (production)
 13. ❌ Skipping image analysis → Always use z.ai vision tool to analyze images first
 14. ❌ Fixing without planning → Analyze → Plan → Execute
 15. ❌ Deploying untested code → Test thoroughly before deploying preview
+16. ❌ Using Puppeteer when user requests "fireclaw"/Firecrawl → User explicitly wants Firecrawl MCP tools
 
 ---
 
@@ -490,6 +491,21 @@ When ending session:
 
 ---
 
+## 🧪 SMOKE TESTING TOOLS (User Preference)
+
+**When user requests "fireclaw" or "Firecrawl":**
+- ✅ USE: Firecrawl MCP tools (`mcp__firecrawl*` or available browser MCPs)
+- ❌ DON'T: Puppeteer MCP (`mcp__puppeteer__*`) - user didn't ask for this
+
+**User language cues:**
+- "fireclaw" → Firecrawl MCP
+- "smoke test" → User wants to verify preview themselves
+- "test with X" → Use tool X specifically
+
+**Why:** User explicitly chose Firecrawl for smoke testing. Using wrong tool breaks trust.
+
+---
+
 ## 💳 CYBERSOURCE SECURE ACCEPTANCE (Phase 1)
 
 ### Test Credentials (Sandbox)
@@ -527,7 +543,7 @@ This file is **auto-updated** by the reflect skill when:
 - You express a preference ("I prefer Y")
 - A pattern is identified across sessions
 
-**Last Learning:** [Updated 2026-03-27 - Working Protocols: ALWAYS Verify Before Assuming]
+**Last Learning:** [Updated 2026-03-29 - Smoke Testing: Use Firecrawl when user requests "fireclaw"]
 
 **Git History:** View commit history to see how JARVIS learned over time.
 
