@@ -91,6 +91,16 @@ All UI must meet WCAG 2.1 AA standards:
 
 ---
 
+## 🔄 DEVELOPMENT WORKFLOW (LOCKED)
+
+**Order matters:**
+1. **Web React first** - Build web prototype in `src/magicpatterns/`
+2. **React Native + Expo** - Mobile app second
+
+**Why:** Web allows rapid iteration and testing before mobile development.
+
+---
+
 ## 👁️ NO COLOR VIBRATIONS (Visual Comfort)
 
 **What to avoid:** Colors that vibrate/hum when placed together (causes eye strain, migraines)
@@ -388,6 +398,9 @@ Feature Branch (claude/issue-*)  →  main (staging)  →  master (production)
 14. ❌ Fixing without planning → Analyze → Plan → Execute
 15. ❌ Deploying untested code → Test thoroughly before deploying preview
 16. ❌ Using Puppeteer when user requests "fireclaw"/Firecrawl → User explicitly wants Firecrawl MCP tools
+17. ❌ Using backslashes in paths → Use forward slashes `/` (more portable)
+18. ❌ Using CDN URLs for vision → Use local file paths for Z.AI MCP
+19. ❌ Files with spaces in names → Rename to `image-20260329.png` not `Screenshot 2026-03-29.png`
 
 ---
 
@@ -564,6 +577,47 @@ When ending session:
 - "test with X" → Use tool X specifically
 
 **Why:** User explicitly chose Firecrawl for smoke testing. Using wrong tool breaks trust.
+
+---
+
+## 📸 IMAGE ANALYSIS (Z.AI MCP Vision)
+
+**Tool:** `mcp__zai-mcp-server__analyze_image`
+**Cost:** FREE (via GLM proxy subscription - no per-token charges)
+
+### Correct Workflow
+
+1. **User saves image to local file** (no spaces in name)
+   - ❌ `Screenshot 2026-03-29 110653.png`
+   - ✅ `workbench-20260329.png`
+   - ✅ Use forward slashes: `./Pictures/image.png`
+
+2. **Provide local file path** (absolute paths required)
+   - ✅ `C:\Users\ROG\Pictures\image.png`
+   - ❌ `https://cdn.../image.png` (don't use CDN)
+
+3. **MCP tool analyzes** and returns detailed results
+
+### Available Vision Tools (via zai-mcp-server)
+- `ui_to_artifact` - Screenshots → code/prompts
+- `extract_text_from_screenshot` - OCR for code/text
+- `diagnose_error_screenshot` - Error analysis
+- `understand_technical_diagram` - Architecture, UML, ER
+- `analyze_data_visualization` - Charts, dashboards
+- `ui_diff_check` - Compare UIs
+- `image_analysis` - General image understanding
+- `video_analysis` - Video understanding
+
+### Path Best Practices
+
+| Type | Use | Example |
+|------|-----|---------|
+| **Local file** | ✅ Required for MCP | `C:\Users\...\image.png` |
+| **Relative path** | ⚠️ Not supported by Z.AI MCP | `./Pictures/image.png` fails |
+| **Forward slash** | ✅ Preferred | `/Users/.../image.png` |
+| **Backslash** | ✅ Works on Windows | `C:\Users\...\image.png` |
+| **No spaces** | ✅ Best practice | `workbench.png` not `Screenshot 2026-03-29.png` |
+| **CDN URL** | ❌ Don't use | Bypasses MCP, costs money |
 
 ---
 
