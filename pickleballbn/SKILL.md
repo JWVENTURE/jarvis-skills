@@ -565,9 +565,47 @@ When ending session:
 
 ---
 
-## 🧪 SMOKE TESTING TOOLS (User Preference)
+## 🧪 TESTING REQUIREMENTS (User Preference)
 
-**When user requests "fireclaw" or "Firecrawl":**
+**User explicitly asked: "what about the console logs?" - Values debugging visibility.**
+
+### Before Deployment (MANDATORY)
+```bash
+cd src/magicpatterns
+npm run test:smoke          # Run smoke tests
+npm run lint                # Must pass
+npm run build               # Verify build
+```
+
+### Minimum Requirements
+- ✅ 80% pass rate required
+- ✅ Console logs MUST be captured and reviewed
+- ✅ Screenshots on failure
+- ✅ Test on preview URL before merge
+
+### Testing Tools (APPROVED)
+| Tool | Purpose | Command |
+|------|---------|---------|
+| **Playwright** | Fast local E2E tests | `npm run test:smoke` |
+| **Firecrawl** | Production validation | `npm run test:smoke:prod` |
+| **Supabase MCP** | Direct API testing | Use `execute_sql` for RPC tests |
+
+### Console Log Capture (REQUIRED)
+- All errors, warnings, info logs captured
+- Saved to `playwright-report/console-logs/`
+- Detects: Supabase errors, network errors, missing API keys, CORS
+- Use `formatConsoleSummary()` for test output
+
+### Test Output Location
+```
+src/magicpatterns/playwright-report/
+├── html-report/          # HTML test report
+├── console-logs/         # Captured console logs
+├── screenshots/          # Failure screenshots
+└── results.json          # Machine-readable results
+```
+
+### When user requests "fireclaw" or "Firecrawl":
 - ✅ USE: Firecrawl MCP tools (`mcp__firecrawl*` or available browser MCPs)
 - ❌ DON'T: Puppeteer MCP (`mcp__puppeteer__*`) - user didn't ask for this
 
@@ -577,6 +615,11 @@ When ending session:
 - "test with X" → Use tool X specifically
 
 **Why:** User explicitly chose Firecrawl for smoke testing. Using wrong tool breaks trust.
+
+### Testing Roadmap (Phased Approach)
+- ✅ **Phase 1:** Smoke tests (Playwright + Firecrawl, console capture)
+- ⬜ **Phase 2:** E2E user journeys, API testing (RPC functions via Supabase MCP)
+- ⬜ **Phase 3:** Visual regression, performance (Lighthouse CI), accessibility (Axe-core)
 
 ---
 
