@@ -185,7 +185,102 @@ Agent: auto_execute
 
 ---
 
-## 🧪 RULE 4: Test Before Deploy Preview
+## 🧪 RULE 4: CAPTURE LOGS BEFORE CLAIMING "FIXED"
+
+**CRITICAL:** NEVER claim anything is "fixed" without capturing and analyzing console/data logs FIRST.
+
+### The "Lying" Problem
+
+**User Feedback:** "how can i work with a liar?" / "you are lying to me, why?"
+
+This happens when:
+- You claim "fixed" without proper verification
+- The bug still exists when user tests
+- You wasted time because you didn't investigate properly
+
+### Verification Protocol (MANDATORY)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              BEFORE CLAIMING "FIXED"                         │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. CAPTURE ACTUAL DATA                                    │
+│     → Run Playwright test with console logging             │
+│     → Use browser dev tools to see network requests         │
+│     → Check database RPC returns actual values              │
+│     → Screenshot the BEFORE and AFTER states               │
+│                                                             │
+│  2. ANALYZE THE LOGS                                       │
+│     → Read the console output YOURSELF                      │
+│     → Identify the ACTUAL values vs EXPECTED values        │
+│     → Find WHERE the data flow breaks                       │
+│                                                             │
+│  3. VERIFY THE FIX                                         │
+│     → See the BEFORE values → apply fix → see AFTER values  │
+│     → Confirm the numbers changed correctly                 │
+│     → ONLY THEN say "I've made changes, please test"        │
+│                                                             │
+│  ❌ FORBIDDEN: "It's fixed" / "That should work"           │
+│  ✅ CORRECT: "Modified X, logs show Y changed. Please test" │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Example: Field Mapping Bug
+
+**What happened (WRONG):**
+```
+Me: "Applied migration, player counts now 0/4. Fixed!"
+User: "Courts still show 'booked' ❌"
+Me: (lost trust because I didn't verify)
+```
+
+**What should have happened (CORRECT):**
+```
+Me: "Applied migration. Let me capture console logs..."
+     (Run Playwright test, see logs)
+Me: "Logs show '0/16 slots, 0/4 players → booked'
+     RPC returns available=true but frontend reads is_available=undefined.
+     Root cause: Field mapping mismatch.
+     Fixing useBookings.ts line 463..."
+     (Verify with test again)
+Me: "Logs now show '16/16 slots, 0/4 players → available' ✓
+     Please verify at [preview URL]"
+```
+
+### Playwright Console Logging Template
+
+```typescript
+// CAPTURE ALL CONSOLE MESSAGES
+page.on('console', msg => {
+  allLogs.push(msg.text());
+  console.log(`[BROWSER CONSOLE] ${msg.text()}`);
+});
+
+// CAPTURE NETWORK REQUESTS (for debugging)
+page.on('request', req => {
+  console.log(`[REQUEST] ${req.method()} ${req.url()}`);
+});
+
+page.on('response', res => {
+  console.log(`[RESPONSE] ${res.status()} ${res.url()}`);
+});
+```
+
+### When to Use Cloudflare vs Local
+
+| Situation | Use | Why |
+|----------|-----|-----|
+| Quick verification | Local (localhost:5173) | Faster iteration |
+| Final verification | Cloudflare preview | Production environment |
+| Database RPC testing | Cloudflare preview | Uses real DB connection |
+
+**User preference:** "if using cloudflare is slow for testing use local"
+
+---
+
+## 🚀 RULE 5: Test Before Deploy Preview
 
 **MANDATORY:** Before ANY preview deployment, test first and ensure end-to-end workflow works.
 
@@ -316,6 +411,12 @@ Let me know if you find any issues."
 │     → Test locally                                              │
 │     → Verify end-to-end workflow                                │
 │                                                                  │
+│  5.5 CAPTURE LOGS AND VERIFY FIX (CRITICAL)                    │
+│     → Run Playwright test WITH console logging                 │
+│     → Read ACTUAL console output YOURSELF                       │
+│     → Compare BEFORE vs AFTER values                            │
+│     → ONLY say "fixed" AFTER seeing correct values             │
+│                                                                  │
 │  6. DEPLOY PREVIEW                                             │
 │     → Push to trigger Cloudflare preview                        │
 │     → Provide preview URL                                      │
@@ -340,6 +441,7 @@ Let me know if you find any issues."
 | Mistake | Why It's Wrong | Correct Approach |
 |---------|---------------|------------------|
 | Skip image analysis | Might misunderstand the issue | Always use z.ai vision first |
+| Claim "fixed" without logs | User loses trust when bug still exists | Capture logs → Analyze → Fix → Verify → Show user |
 | Fix without planning | Might miss dependencies | Analyze → Plan → Execute |
 | Execute everything sequentially | Wastes time on independent tasks | Use multi-agent parallel when possible |
 | Deploy without testing | User finds bugs immediately | Test thoroughly before deploy |
@@ -358,8 +460,9 @@ Let me know if you find any issues."
 │  1. 🖼️  IMAGE → Use z.ai vision tool FIRST               │
 │  2. 📋 PLAN → Analyze and plan before fixing              │
 │  3. 🤖 AGENTS → Multi-agent parallel/sequential execute   │
-│  4. 🧪 TEST → Test thoroughly BEFORE deploying preview     │
-│  5. 🚀 DEPLOY → Preview is for USER smoke test             │
+│  4. 🔍 CAPTURE LOGS → BEFORE claiming "fixed"              │
+│  5. 🧪 TEST → Test thoroughly BEFORE deploying preview     │
+│  6. 🚀 DEPLOY → Preview is for USER smoke test             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
