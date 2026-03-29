@@ -588,6 +588,7 @@ npm run build               # Verify build
 |------|---------|---------|
 | **Playwright** | Fast local E2E tests | `npm run test:smoke` |
 | **Firecrawl** | Production validation | `npm run test:smoke:prod` |
+| **TestDino** | Test reporting dashboard | `npm run test:testdino` |
 | **Supabase MCP** | Direct API testing | Use `execute_sql` for RPC tests |
 
 ### Console Log Capture (REQUIRED)
@@ -599,11 +600,47 @@ npm run build               # Verify build
 ### Test Output Location
 ```
 src/magicpatterns/playwright-report/
-├── html-report/          # HTML test report
+├── index.html            # HTML test report (root for TestDino assets)
+├── report.json           # Machine-readable results (TestDino requires this name!)
+├── results.json          # Legacy output (kept for compatibility)
+├── results.xml           # JUnit format
 ├── console-logs/         # Captured console logs
-├── screenshots/          # Failure screenshots
-└── results.json          # Machine-readable results
+└── screenshots/          # Failure screenshots
 ```
+
+### TestDino Configuration (CRITICAL)
+**TestDino requires specific reporter output paths:**
+
+| Reporter | Required Path | Notes |
+|----------|---------------|-------|
+| JSON | `playwright-report/report.json` | Must be named `report.json` NOT `results.json` |
+| HTML | `playwright-report/` (root) | For asset upload support |
+
+**playwright.config.ts reporter config:**
+```typescript
+reporter: [
+  ['html', { outputFolder: 'playwright-report', open: 'never' }],  // Root folder!
+  ['json', { outputFile: 'playwright-report/report.json' }),        // report.json!
+  ['junit', { outputFile: 'playwright-report/results.xml' }],
+  ['list']
+]
+```
+
+**CLI Upload Command:**
+```bash
+npx tdpw upload ./playwright-report --token=trx_production_34bebf6e8b1c2f25e7d21278a8c7186a514f87ab050f172381281b08fb75a49d
+```
+
+**NPM Script (in src/magicpatterns/package.json):**
+```json
+"test:testdino": "npx tdpw upload ./playwright-report --token=trx_production_34bebf6e8b1c2f25e7d21278a8c7186a514f87ab050f172381281b08fb75a49d"
+```
+
+**TestDino Dashboard:**
+- Organization: https://app.testdino.com/org_69c95d98fd4b9317c13a9d37
+- Project: https://app.testdino.com/org_69c95d98fd4b9317c13a9d37/projects/project_69c95d99fd4b9317c13a9d59
+
+**Token Location:** `credentials/ai_api_keys.md`
 
 ### When user requests "fireclaw" or "Firecrawl":
 - ✅ USE: Firecrawl MCP tools (`mcp__firecrawl*` or available browser MCPs)
@@ -749,7 +786,7 @@ This file is **auto-updated** by the reflect skill when:
 - You express a preference ("I prefer Y")
 - A pattern is identified across sessions
 
-**Last Learning:** [Updated 2026-03-29 - Task #139: Loyalty transaction logging bug fixed + systematic debugging patterns]
+**Last Learning:** [Updated 2026-03-30 - TestDino integration: reporter config (report.json, HTML root folder), API token saved]
 
 **Git History:** View commit history to see how JARVIS learned over time.
 
