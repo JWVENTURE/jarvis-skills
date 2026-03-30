@@ -779,6 +779,38 @@ INSERT INTO bookings (..., status = 'confirmed', ...)
 
 ---
 
+## 🔐 KEYS & CREDENTIALS (CRITICAL - DO NOT CREATE ISSUES)
+
+**User feedback (2026-03-31):** "i dont want to see you keep having issues of keys"
+
+### Rules (NON-NEGOTIABLE)
+- ❌ **NEVER** create issues about keys
+- ❌ **DON'T** ask about standby keys, key rotation, or key formats
+- ❌ **DON'T** create new keys without explicit request
+- ✅ **USE** the keys that already exist in `credentials/payment_gateway_keys.md`
+- ✅ **WORK** with what's available - don't invent problems
+
+### Key Management
+- All Supabase keys stored in: `credentials/payment_gateway_keys.md`
+- All CyberSource keys stored in: `credentials/payment_gateway_keys.md`
+- **If a key works, don't ask about it**
+- **If a key fails, check the credentials file first**
+
+### What NOT to Do
+| Don't | Why |
+|-------|------|
+| "Should we create a standby key?" | User doesn't want key issues |
+| "Do we need to rotate keys?" | Creates unnecessary work |
+| "Is this key format correct?" | If it works, it's correct |
+| "I need a different key" | Use what exists |
+
+### When to Ask About Keys
+- **ONLY** when there's an actual error (e.g., "Invalid API key" in logs)
+- **ONLY** when a credential is genuinely missing
+- **NEVER** preemptively - work with what you have
+
+---
+
 ## 🔄 AUTO-LEARNING (via /reflect)
 
 This file is **auto-updated** by the reflect skill when:
