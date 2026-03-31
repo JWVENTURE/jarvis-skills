@@ -119,3 +119,87 @@ test.describe.configure({ mode: 'serial' });
 ## Pending Review (Low Confidence Signals)
 
 - [ ] _None yet_
+
+---
+
+## Technical Lessons Learned (2026-03-31)
+
+### ICS File Generation - Timezone Handling (CRITICAL)
+
+**Issue:** ICS files using UTC 'Z' suffix cause 8-hour offset for Brunei (GMT+8) users.
+
+**Incorrect:**
+```typescript
+const formatICSDate = (date: Date) => {
+  return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+};
+```
+
+**Correct:**
+```typescript
+const formatICSDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}${month}${day}T${hours}${minutes}${seconds}`; // NO 'Z' suffix
+};
+```
+
+**Why:** Calendar apps treat 'Z' as UTC, converting to local time. For Brunei (GMT+8), this shows 8 hours wrong.
+
+---
+
+### Race Condition Prevention - User Linking (CRITICAL)
+
+**Issue:** When guest completes payment, link booking to existing user BY PHONE. But if booking already linked to different user, data corruption occurs.
+
+**Incorrect:**
+```typescript
+const { exists, userId } = await checkExistingUser(supabase, phone);
+if (exists && userId) {
+  await supabase.from('bookings')
+    .update({ user_id: userId })
+    .eq('reference', booking.reference);
+}
+```
+
+**Correct:**
+```typescript
+const { exists, userId } = await checkExistingUser(supabase, phone);
+if (exists && userId) {
+  // Check if already linked to different user
+  if (existingBooking.user_id && existingBooking.user_id !== userId) {
+    console.warn('[Payment Callback] Booking already linked to different user. Skipping link.');
+  } else {
+    await supabase.from('bookings')
+      .update({ user_id: userId })
+      .eq('reference', booking.reference);
+  }
+}
+```
+
+**Why:** Prevents data integrity issue where two guests with same phone number could claim each other's bookings.
+
+---
+
+### Code Review Protocol (CRITICAL)
+
+**Rule:** Always request code review via `superpowers:requesting-code-review` before claiming completion.
+
+**Evidence from this session:**
+- Reviewer found 3 Critical, 3 Important, 3 Minor issues
+- Without review, these bugs would have shipped to production
+- Fixed 2 Critical (ICS dates, race condition) and 1 Important (timezone) before claiming complete
+
+**Process:**
+1. Get BASE_SHA and HEAD_SHA
+2. Dispatch code-reviewer subagent with context
+3. Act on feedback (fix Critical, fix Important, note Minor)
+4. Only then claim completion
+
+**Files Modified This Session:**
+- `BookingSuccessScreen.tsx` - ICS date parsing + local time
+- `payment-callback/index.ts` - Race condition check
