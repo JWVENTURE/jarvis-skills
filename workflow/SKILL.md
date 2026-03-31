@@ -172,21 +172,41 @@ subsequent code generation by the model. [Add your specific questions]"
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### How to Invoke Review
+### How to Invoke Review (CORRECT METHOD)
 
 ```
-# In conversation, after completing work:
-"I've completed [feature]. Let me run code review..."
+# STEP 1: Get git SHAs
+BASE_SHA=$(git rev-parse HEAD~1)
+HEAD_SHA=$(git rev-parse HEAD)
 
-# Then invoke the skill:
-Skill: superpowers:code-review
-# OR
-Skill: superpowers:verification-before-completion
+# STEP 2: Read the code-reviewer template
+# Location: .claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/requesting-code-review/code-reviewer.md
+
+# STEP 3: Dispatch code-reviewer subagent via Agent tool
+# Fill placeholders: {WHAT_WAS_IMPLEMENTED}, {PLAN_REFERENCE}, {BASE_SHA}, {HEAD_SHA}, {DESCRIPTION}
 ```
+
+**❌ FORBIDDEN (Wrong Methods):**
+- `Skill: superpowers:code-review` - Does not exist
+- `Skill: superpowers:code-reviewer` - Does not exist
+- Direct Agent invocation without template - Lacks context
+
+**User Correction:** "you are using the wrong or old deprecated command" (2026-03-31)
 
 ### Why This Matters
 
 **User Feedback:** "I wish you knew how and when to invoke those commands"
+
+Without code review:
+- Bugs slip through to user testing
+- User finds issues AI should have caught
+- Lost trust from "saying it's done" when it's not
+
+With code review:
+- Fresh eyes on the code
+- Different model may catch bugs implementer missed
+- Higher quality before user sees it
+- User receives more polished work
 
 Without code review:
 - Bugs slip through to user testing
@@ -448,6 +468,90 @@ Let me know if you find any issues."
 
 ---
 
+## 🔧 RULE 8: Testing vs Production Code
+
+**PRINCIPLE:** Code that's good for testing may be bad for production (and vice versa).
+
+### Testing-Friendly Features (Keep During Dev)
+
+| Feature | Why Good for Testing | Remove for Production |
+|---------|---------------------|----------------------|
+| Signature verification disabled | Can test without real CyberSource callbacks | ❌ Payment fraud risk |
+| OTP codes in logs | Can verify OTP was generated correctly | ❌ Security vulnerability |
+| Test email fallback | Prevents crashes during testing | ❌ Wrong for real users |
+| Debug console.logs | See what's happening | ❌ Performance/log cost |
+
+### Production-Required Features (Apply Before Go-Live)
+
+| Feature | Why Required | When to Apply |
+|---------|--------------|--------------|
+| Signature verification enabled | Prevents payment fraud | Production deployment |
+| Remove OTP from logs | Security best practice | Production deployment |
+| Fix venue credit bug | Correct accounting | Production deployment |
+| Remove test fallbacks | Real data only | Production deployment |
+
+### Workflow
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              TESTING vs PRODUCTION WORKFLOW                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. DEVELOPMENT & TESTING                                   │
+│     → Keep testing-friendly features                         │
+│     → Debug with verbose logging                             │
+│     → Smoke test freely                                      │
+│     ↓                                                       │
+│  2. CREATE PRODUCTION CHECKLIST                             │
+│     → Document all required patches                          │
+│     → File: docs/PRODUCTION_DEPLOYMENT_CHECKLIST.md         │
+│     ↓                                                       │
+│  3. PRODUCTION DEPLOYMENT                                   │
+│     → Apply security patches                                 │
+│     → Remove test fallbacks                                  │
+│     → Enable production features                             │
+│     → Deploy to live environment                             │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Production Checklist Template
+
+**Always create** `docs/PRODUCTION_DEPLOYMENT_CHECKLIST.md` when building features that have different dev/prod requirements.
+
+**Template structure:**
+```markdown
+# Production Deployment Checklist - [Feature Name]
+
+## 🔴 CRITICAL (Must Fix Before Production)
+1. Enable signature verification
+2. Remove sensitive data from logs
+3. Fix accounting bugs
+
+## 🟡 IMPORTANT (Should Fix)
+1. Remove test fallbacks
+2. Add error monitoring
+
+## ✅ VERIFICATION
+- [ ] Smoke test passed
+- [ ] Code review completed
+- [ ] Production checklist applied
+```
+
+### User Preference
+
+**User quote:** "if we do those fixes now will it be difficult for us for testing and debugging especially monitoring, maybe we patch it when moving to production?"
+
+**Decision:** Keep testing-friendly code during development. Create production checklist. Apply patches only when deploying to live.
+
+**Why this works:**
+- Faster iteration during development
+- Easier debugging with verbose logs
+- Security properly applied before production
+- No "works on my machine" issues
+
+---
+
 ## 📊 Complete Workflow Summary
 
 ```
@@ -539,10 +643,11 @@ Let me know if you find any issues."
 │  1. 🖼️  IMAGE → Use z.ai vision tool FIRST               │
 │  2. 📋 PLAN → Analyze and plan before fixing              │
 │  3. 🤖 AGENTS → Multi-agent parallel/sequential execute   │
-│  4. 🔍 REVIEW → Auto-invoke code review AFTER completing    │
+│  4. 🔍 REVIEW → Use Agent tool with template (not Skill)   │
 │  5. 🧪 LOGS → Capture logs BEFORE claiming "fixed"          │
 │  6. 🧪 TEST → Test thoroughly BEFORE deploying preview     │
 │  7. 🚀 DEPLOY → Preview is for USER smoke test             │
+│  8. 🔧 PROD → Keep test-friendly code, patch for production │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -558,10 +663,12 @@ Let me know if you find any issues."
 | `Agent: execute_parallel` | Run independent tasks together |
 | `Agent: execute_sequential` | Run dependent tasks in order |
 | `Agent: auto_execute` | Agent decides execution strategy |
-| `superpowers:code-review` | Code review after completing work |
-| `superpowers:verification-before-completion` | Verify before claiming done |
+| `Agent: general-purpose` | Code review via superpowers:requesting-code-review template |
 | `npm run lint` | Check code quality |
 | `npm run build` | Verify build works |
+
+**Code Review Template Location:**
+`.claude/plugins/cache/claude-plugins-official/superpowers/5.0.6/skills/requesting-code-review/code-reviewer.md`
 
 ---
 
