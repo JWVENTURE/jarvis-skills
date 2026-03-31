@@ -129,7 +129,79 @@ subsequent code generation by the model. [Add your specific questions]"
 
 ---
 
-## 🤖 RULE 3: Use Multi-Agent for Execution
+## 🤖 RULE 3: Auto-Invoke Code Review After Completing Work
+
+**CRITICAL:** After completing ANY significant code changes, ALWAYS invoke code review BEFORE asking user to test.
+
+### When to Auto-Invoke Review
+
+**MANDATORY after:**
+- ✅ Completing a feature implementation
+- ✅ Fixing a bug or issue
+- ✅ Making database changes
+- ✅ Finishing multi-file changes
+- ✅ Before creating PR
+- ✅ Before merging to main
+
+### Review Skills to Auto-Invoke
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              AFTER COMPLETING CODE CHANGES                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. IMPLEMENTATION COMPLETE                                │
+│     → All code changes made                                 │
+│     → Files modified                                        │
+│     ↓                                                       │
+│  2. AUTO-INVOKE REVIEW SKILL                                 │
+│     → Skill: superpowers:code-review                       │
+│     OR → Skill: superpowers:verification-before-completion  │
+│     ↓                                                       │
+│  3. REVIEW COMPLETE                                         │
+│     → Address any issues found                             │
+│     → Make recommended fixes                                │
+│     ↓                                                       │
+│  4. THEN ASK USER TO TEST                                  │
+│     → "Reviewed and ready for testing"                     │
+│     → Provide preview URL or test instructions              │
+│                                                             │
+│  ❌ FORBIDDEN: "Done, please test" (without review)         │
+│  ✅ CORRECT: "Code reviewed, ready for testing"             │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### How to Invoke Review
+
+```
+# In conversation, after completing work:
+"I've completed [feature]. Let me run code review..."
+
+# Then invoke the skill:
+Skill: superpowers:code-review
+# OR
+Skill: superpowers:verification-before-completion
+```
+
+### Why This Matters
+
+**User Feedback:** "I wish you knew how and when to invoke those commands"
+
+Without code review:
+- Bugs slip through to user testing
+- User finds issues AI should have caught
+- Lost trust from "saying it's done" when it's not
+
+With code review:
+- Fresh eyes on the code
+- Different model may catch bugs implementer missed
+- Higher quality before user sees it
+- User receives more polished work
+
+---
+
+## 🤖 RULE 5: Use Multi-Agent for Execution
 
 **After planning:** Use multi-agent system to execute tasks intelligently.
 
@@ -185,7 +257,7 @@ Agent: auto_execute
 
 ---
 
-## 🧪 RULE 4: CAPTURE LOGS BEFORE CLAIMING "FIXED"
+## 🧪 RULE 6: CAPTURE LOGS BEFORE CLAIMING "FIXED"
 
 **CRITICAL:** NEVER claim anything is "fixed" without capturing and analyzing console/data logs FIRST.
 
@@ -280,7 +352,7 @@ page.on('response', res => {
 
 ---
 
-## 🚀 RULE 5: Test Before Deploy Preview
+## 🚀 RULE 7: Test Before Deploy Preview
 
 **MANDATORY:** Before ANY preview deployment, test first and ensure end-to-end workflow works.
 
@@ -411,6 +483,13 @@ Let me know if you find any issues."
 │     → Test locally                                              │
 │     → Verify end-to-end workflow                                │
 │                                                                  │
+│  4.5 AUTO-INVOKE CODE REVIEW (CRITICAL)                        │
+│     → Skill: superpowers:code-review                       │
+│     → OR: superpowers:verification-before-completion  │
+│     → Review completed code for issues                         │
+│     → Address any problems found                              │
+│     → Ensure quality before user testing                         │
+│                                                                  │
 │  5.5 CAPTURE LOGS AND VERIFY FIX (CRITICAL)                    │
 │     → Run Playwright test WITH console logging                 │
 │     → Read ACTUAL console output YOURSELF                       │
@@ -460,9 +539,10 @@ Let me know if you find any issues."
 │  1. 🖼️  IMAGE → Use z.ai vision tool FIRST               │
 │  2. 📋 PLAN → Analyze and plan before fixing              │
 │  3. 🤖 AGENTS → Multi-agent parallel/sequential execute   │
-│  4. 🔍 CAPTURE LOGS → BEFORE claiming "fixed"              │
-│  5. 🧪 TEST → Test thoroughly BEFORE deploying preview     │
-│  6. 🚀 DEPLOY → Preview is for USER smoke test             │
+│  4. 🔍 REVIEW → Auto-invoke code review AFTER completing    │
+│  5. 🧪 LOGS → Capture logs BEFORE claiming "fixed"          │
+│  6. 🧪 TEST → Test thoroughly BEFORE deploying preview     │
+│  7. 🚀 DEPLOY → Preview is for USER smoke test             │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -478,6 +558,8 @@ Let me know if you find any issues."
 | `Agent: execute_parallel` | Run independent tasks together |
 | `Agent: execute_sequential` | Run dependent tasks in order |
 | `Agent: auto_execute` | Agent decides execution strategy |
+| `superpowers:code-review` | Code review after completing work |
+| `superpowers:verification-before-completion` | Verify before claiming done |
 | `npm run lint` | Check code quality |
 | `npm run build` | Verify build works |
 
