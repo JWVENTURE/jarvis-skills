@@ -10,6 +10,30 @@ user-invocable: true
 
 ---
 
+## 🚨 CRITICAL: Default Brand for General Tools
+
+**For general-purpose tools (statuslines, scripts, internal tools):**
+→ **Use UniPlay branding** (Navy #0A2240, Orange/Gold #E0924F, or UniPlay Green #00E054)
+
+**Client brands (PickleballBN, etc.) are ONLY for:**
+- Client-specific apps and websites
+- Client-facing documents
+- Client-specific features
+
+**Examples:**
+| Tool/Use Case | Correct Brand |
+|---------------|--------------|
+| Terminal statusline | UniPlay |
+| Internal scripts | UniPlay |
+| JARVIS AI interface | UniPlay |
+| PickleballBN booking app | PickleballBN |
+| PickleballBN website | PickleballBN |
+| JW Ventures contracts | JW Ventures |
+
+**🔴 NEVER use PickleballBN colors for general tools!**
+
+---
+
 ## 📋 Quick Reference
 
 | Brand | Primary Color | Usage |
@@ -186,7 +210,11 @@ Safe:
 
 ## 🚨 Common Mistakes to Avoid
 
-1. ❌ Using PickleballBN colors in JW Ventures documents
+1. ❌ **Using PickleballBN colors for general tools** (statusline, scripts, internal UI)
+   → Use UniPlay branding for general-purpose tools
+   → PickleballBN is ONLY for the PickleballBN app/website
+
+2. ❌ Using PickleballBN colors in JW Ventures documents
    → Use JW Ventures Olive Green for contracts/invoices
 
 2. ❌ Using JW Ventures colors in PickleballBN app
