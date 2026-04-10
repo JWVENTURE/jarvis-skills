@@ -51,6 +51,34 @@ description: PickleballBN project rules, client preferences, brand guidelines
 
 **Source:** Session 2026-04-10, user said "the address is very long to type.. so it would be nice it can be save"
 
+## Database RPC Functions (CRITICAL)
+- **ALWAYS verify column existence via `information_schema.columns` before creating/updating RPC functions**
+- Schema drift happens — never assume columns exist based on old code
+- Example: `get_user_bookings_with_details` failed because it referenced non-existent `venue_location`, `venue_banner_url`
+
+```sql
+-- BEFORE writing RPC function, verify:
+SELECT column_name FROM information_schema.columns
+WHERE table_name = 'your_table' AND column_name IN ('col1', 'col2');
+```
+
+**Source:** Session 2026-04-11, RPC error "column b.discount_amount does not exist" led to discovering schema mismatch
+
+## Booking Ownership Model
+- **Unclaimed** = `user_id IS NULL` (NOT a status field)
+- **Claimed** = `user_id IS NOT NULL`
+- Status (`confirmed`, `pending_payment`, `cancelled`) is independent of ownership
+- A `confirmed` booking can still be unclaimed (guest checkout flow)
+
+**Source:** Session 2026-04-11, user asked "claim is only be done when the status is unclaim?"
+
+## Testing Preferences
+- Local: `http://localhost:5173` (npm run dev) — **PREFERRED**
+- DEV: `https://pickleballbn-dev.pages.dev`
+- User tests locally whenever possible before deploying
+
+**Source:** Session 2026-04-11, user said "am doing local testing"
+
 ## Development Order (CRITICAL)
 1. **Web features BEFORE mobile features**
    - Tournament: Web (src/magicpatterns/) → Mobile (src/expo-app/)
