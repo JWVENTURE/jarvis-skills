@@ -38,6 +38,15 @@ fix: Resolve [issue] in [component] (closes #XX)
 docs: Update [document]
 ```
 
+## Edge Function Deployment (macOS)
+When `supabase` CLI is not in PATH (common on macOS):
+```bash
+npx supabase functions deploy <function-name> --project-ref luhetbxmnfxylgkrvagh --no-verify-jwt
+```
+
+**Why:** Direct `supabase` command may not be available. `npx supabase` works via npm.
+**Source:** Session 2026-04-10, user frustrated when deployment failed
+
 ## Pre-Commit Checklist
 - `npm run lint` - Must pass
 - `npm run build` - Must pass
@@ -76,6 +85,16 @@ After merging PR to `main`:
 **Why:** User wants MAIN dev deployment updated, not just preview
 **How to apply:** When working on features, remember to merge to `main` for DEV deployment. Preview builds are for temporary testing only.
 **Source:** Session 2026-04-08, user said "preview is updated, the main is still outdated"
+
+### "Verify internally first"
+**Why:** User wants bugs caught before they spend time testing
+**How to apply:** Before saying "please test", verify:
+- Code compiles (no TypeScript errors)
+- Database schema matches queries
+- Edge functions are deployed
+- Data flow is complete end-to-end
+
+**Source:** Session 2026-04-10, user asked "before i do the test, can you verify this internally theres no bug"
 
 ---
 
