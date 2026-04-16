@@ -129,6 +129,55 @@ Do NOT return full code. Just essentials.
 
 ---
 
+## 🤖 Model Routing (Cost-Optimal)
+
+The `Agent` tool accepts a `model:` parameter that **overrides** both the parent session model and any agent-definition frontmatter default.
+
+Valid values: `"haiku"` | `"sonnet"` | `"opus"`
+
+**DO NOT** use `/model` to switch models mid-plan — that's user-initiated and session-wide only. Use `model:` per-Agent call instead.
+
+### Standard routing pattern
+
+| Task type | Model | Why |
+|---|---|---|
+| Grep / read / explore / enumeration | **haiku** | Pure pattern-matching, no judgment needed |
+| Schema design, code judgment, supervisor role | **sonnet** | Standard reasoning, cost-balanced |
+| High-stakes review: HMAC, security, signature order, pre-deploy gate | **opus** | Catches subtle cross-file bugs Sonnet misses; worth cost at critical gates |
+
+### In practice
+
+```
+Agent({
+  subagent_type: "Explore",
+  model: "haiku",            // explicit — overrides session model + frontmatter
+  description: "grep sweep",
+  prompt: "..."
+})
+```
+
+### Bake routing into plan docs
+
+Add a `§3.0 Model Routing` table at the top of every execution protocol section in plan docs. This prevents the supervisor from accidentally defaulting all subagents to the parent session model.
+
+**Example (from docs/flows/CYBERSOURCE_ORIGIN_ROUNDTRIP.md §3.0):**
+```
+| Phase                    | Model  | Why                          |
+|--------------------------|--------|------------------------------|
+| §3.2 Agent A — grep sweep | haiku  | Pure enumeration             |
+| §3.2 Agent C — DB design  | sonnet | Schema judgment              |
+| §3.4 Pre-deploy review   | opus   | Catches HMAC ordering bugs   |
+| Supervisor (main session) | sonnet | Standard execution           |
+```
+
+### Fallback rule
+
+If Opus is unavailable for a high-stakes gate → use Sonnet + manually re-read the critical gotchas before proceeding. **Never skip the review entirely.**
+
+**Source:** Session 2026-04-16, user asked "will sonnet use haiku for 3.2? or opus for 3.4" → confirmed the model: param routing pattern.
+
+---
+
 ## 📁 Files
 
 | File | Purpose |
