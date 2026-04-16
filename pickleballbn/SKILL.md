@@ -314,12 +314,44 @@ Feature Branch (claude/issue-*)  →  main (staging)  →  master (production)
 
 ---
 
+## 💻 CLAUDE CODE CONFIGURATION (GLM-4.7)
+
+### Model Settings (via Z.ai API)
+| Setting | Value | Notes |
+|---------|-------|-------|
+| **Model** | GLM-4.7 | 200K token context max |
+| **API Base** | `https://api.z.ai/api/anthropic` | Z.ai proxy |
+| **1M Context** | `CLAUDE_CODE_DISABLE_1M_CONTEXT: "1"` | ⚠️ **KEEP DISABLED** - causes API errors with GLM |
+| **Auto-compact** | `CLAUDE_CODE_AUTO_COMPACT_WINDOW: "204800"` | ~200K tokens |
+| **Blocking limit** | `CLAUDE_CODE_BLOCKING_LIMIT_OVERRIDE: "174800"` | ~175K tokens |
+
+### Context Limit Rules
+- ✅ **Current settings are correct** - 200K matches GLM-4.7 capability
+- ❌ **NEVER enable 1M context** - GLM models don't support it, causes API errors
+- 🔧 **Only change if switching to Claude models** - then 1M context becomes available
+
+### Cross-Platform Memory Sync (Git-Based)
+**How Mac and Windows share context:**
+1. Memory files tracked in `.memory-bank/pickleballbn/` on `main` branch
+2. Both platforms sync via `git pull` — no manual transfer needed
+3. Session state captured in `activeContext.md` for continuity
+
+**Workflow:**
+```
+Mac: Work → Commit → Push to main
+Windows: git pull → Read activeContext.md → Resume work
+```
+
+**Rule:** If context feels "missing" after platform switch, run `git pull main` first.
+
+---
+
 ## 📁 IMPORTANT PATHS
 
 | Path | Purpose |
 |------|---------|
 | `CLAUDE.md` | Project instructions for AI |
-| `.memory-bank/pickleballbn/activeContext.md` | Current session state |
+| `.memory-bank/pickleballbn/activeContext.md` | Current session state (git-synced) |
 | `branding/pickleballbn/COLOR_PALETTE_REFERENCE.md` | Official colors |
 | `supabase/migrations/` | Database migrations |
 | `src/magicpatterns/` | Web prototype |
@@ -329,6 +361,8 @@ Feature Branch (claude/issue-*)  →  main (staging)  →  master (production)
 ## 🧠 SHARED MEMORY ARCHITECTURE (Git)
 
 **Source of truth:** `.memory-bank/pickleballbn/` (committed to git)
+
+**Cross-Platform Sync:** Memory files automatically sync between Mac and Windows via `git pull` on `main` branch.
 
 ### Files and Roles
 | File | What it Stores | How to Use |
@@ -803,6 +837,7 @@ INSERT INTO bookings (..., status = 'confirmed', ...)
 | "Do we need to rotate keys?" | Creates unnecessary work |
 | "Is this key format correct?" | If it works, it's correct |
 | "I need a different key" | Use what exists |
+| "This credential is still pending" | Always verify in code first — check if `Deno.env.get()` is already used and ask user before marking as remaining. User correction (2026-04-16): Mocean API key was already set as Supabase secret; was incorrectly listed as pending work. |
 
 ### When to Ask About Keys
 - **ONLY** when there's an actual error (e.g., "Invalid API key" in logs)
@@ -828,6 +863,7 @@ This file is **auto-updated** by the reflect skill when:
 
 _Added by reflect skill for future review_
 
+- [ ] 2026-04-16: Codex excels at auth/session debugging — "why is session lost" type analysis. Identified `_prePaymentSessionRestored` flag + `.then()` race in one pass. Route these to Codex before spending Claude tokens tracing manually. (User: "the codex did a good job yeah claude? am glad we have codex plugin")
 - [ ] 2026-03-26: Vision tool workaround - use Read tool first (uploads to CDN), then built-in 4_5v analyze_image
 - [ ] 2026-03-26: CRON_SECRET not needed for Phase 1 MVP - can add automated cleanup later
 - [ ] 2026-03-26: Database backup before ANY modification (learned from "chaos" of accidental reset)
