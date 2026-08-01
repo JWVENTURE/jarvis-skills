@@ -182,6 +182,31 @@ All glassmorphism must follow the same pattern:
 
 ---
 
+## 🤖 GOOGLE PLAY LISTING ANSWERS (LOCKED)
+
+Canonical source: `docs/PLAY_STORE_LISTING_COPY.md`. Audit that file before treating any Play
+question as an open decision — it already holds the declarations.
+
+| Field | Answer |
+|-------|--------|
+| Target audience | **13–17 and 18+** · Designed for Families: **No** |
+| Ads | No |
+| Government app | No |
+| Health app | No |
+| Financial features | None apply (no banking, lending, investment, money transfer) |
+| Purchases | Physical court reservations consumed offline; no digital goods |
+| Privacy policy | `https://pickleballbn.com/privacy-policy` |
+| Account deletion | `https://pickleballbn.com/delete-account` |
+
+### ❌ Target audience is NOT 18+
+
+Play's target-audience question asks **who the app is for**, not whether money changes hands.
+Taking card payments is not an age signal — court booking has no age-restricted content.
+Corrected by sir 2026-08-01: *"why target audience 18+? its not xxx"*.
+
+---
+
+
 ## 📋 WORKING PROTOCOLS (NON-NEGOTIABLE)
 
 ### ALWAYS Verify Before Assuming
