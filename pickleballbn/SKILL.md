@@ -228,6 +228,25 @@ Corrected by sir 2026-08-01: *"why target audience 18+? its not xxx"*.
 3. Documentation describes intent, code shows reality
 4. Only then declare something as "blocked" or "needs decision"
 
+### Sandbox payments are TESTING, not a financial action
+Published CyberSource TEST PANs (`4111 1111 1111 1111`, 12/2030, CVN 123) on the
+TEST gateway are public documentation values — not sir's card, not real money.
+**DRIVE THE FULL FLOW including card entry.** Do not stall for permission.
+
+The real rule still stands: never enter a REAL card or real financial credentials.
+
+**User correction (2026-08-09):** "you can fucking run it with the card entered since
+its a fucking sandbox, you did i before" — I over-applied the financial-credential
+rule and stalled a payment-gate test sir had already asked for.
+
+### Decisions with real tradeoffs → sequential-thinking FIRST
+Ship-vs-hold, design rulings, irreversible or PROD choices: run
+`mcp__sequential-thinking__sequentialthinking` BEFORE recommending, not after sir
+asks for it.
+
+**Pattern (2026-08-09):** sir invoked it four times in one session; each time it
+changed the answer, twice reversing a recommendation I had already given.
+
 ---
 
 ## 🏢 JW VENTURES BRANDING (Contracts & Invoices)
@@ -575,6 +594,45 @@ C:\uniplay-development\backups\
 
 ---
 
+## 🔐 REVIEW ROUTING (LOCKED)
+
+**Payment / money-path review → Sol or Fable ONLY. Never a Chinese model.**
+Qwen / GLM / DeepSeek / Kimi are for UI/UX and implementation, not payment review.
+
+- Availability is NOT a reason to downgrade. If both are exhausted, WAIT or ASK.
+- "The diff is only navigation code" is NOT an exemption. If it touches the payment
+  gate, checkout, callbacks, refunds, credits or booking money state → Sol or Fable.
+- Never let the model that DESIGNED a change review it. Pick the other one.
+
+**User rule (2026-08-09):** "for payment review it with sol or fable, no chinse model,
+they are for ui/ux and implementations only"
+
+### How to invoke — I run these MYSELF, they are not sir's job
+
+| Reviewer | Command |
+|----------|---------|
+| **Sol** | `codex exec --profile deep "<brief>"` (`gpt-5.6-sol`, high reasoning) |
+| **Fable** | `Agent` tool, `model: "fable"` |
+
+**User correction (2026-08-09):** "arent you suppose to spawn sol agent?" — I had
+assumed Sol was sir-driven and handed him a copy-paste brief instead of invoking it.
+`--profile deep` layers `~/.codex/deep.config.toml`; profiles live in sibling files
+as of CLI 0.144.x (the old inline `[profiles.X]` block is a hard error).
+
+### Qwen (non-payment work only)
+- **Model = `qwen3.8-max` ONLY.** Never 3.7, never 3.8-preview (being retired).
+- Direct curl to the Alibaba token-plan endpoint, `stream:true`, **`max_tokens` 32000+**
+  — thinking burns the whole budget and returns ZERO text at 8000, which looks
+  identical to an auth failure.
+
+### Why this matters
+Reviews caught what tests and a real-device pass did not: a late payment-terminal
+signal flushing a link into a NEW checkout, and a charge-safety denylist bypassed by
+URL userinfo (`https://user@host/`) that would let a sandbox build reach LIVE
+CyberSource. Both were found by review, not by 202 green tests.
+
+---
+
 ## 🤖 MULTI-AGENT WORKFLOW (User Expectation)
 
 **User expects systematic, plan-driven execution with parallel agent coordination.**
@@ -897,4 +955,12 @@ _Added by reflect skill for future review_
   - Migration verification (checked list_migrations, found old migration wasn't applied)
   - DEV → PROD testing order (tested on DEV first, verified output, then applied to PROD)
   - DROP FUNCTION CASCADE syntax (fixed DEFAULT parameter error)
-  - Dynamic column detection (handled schema drift between DEV/PROD)
+  - Dynamic column detection (handled schema drift between DEV/PROD)- [ ] 2026-08-09: **Verify live state before asserting it** (LOW — already covered by
+  "ALWAYS Verify Before Assuming", logged as reinforcement not a new rule). I asserted
+  across several turns that the #844/#848 PROD deploy was the top blocked item, carried
+  from a stale handoff. It had already been done. Sir's "is it already on the google
+  store?" then exposed a second instance: an older v12 build was already sitting in
+  Google production review while I was treating the AAB as unstarted work. Both were
+  cases of trusting a written handoff over a live check. Cheap live checks that would
+  have caught them: `list_migrations` / `get_edge_function` for deploy state,
+  `eas build:list` + Play App Bundle Explorer for release state.
